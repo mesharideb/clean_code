@@ -1,0 +1,16 @@
+clean_code.settings:
+  type: config_object
+  label: 'Clean Code Settings'
+  mapping:
+    repository_keys:
+      type: sequence
+      label: 'Repository Keys'
+      sequence:
+        type: mapping
+        mapping:
+          name:
+            type: string
+            label: 'Repository Name'
+          key:
+            type: string
+            label: 'Repository Key'
