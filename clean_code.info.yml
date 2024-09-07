@@ -1,0 +1,5 @@
+name: Clean Code
+type: module
+description: A module enforces clean, organized, and high-quality code by integrating automated code quality checks into the development workflow.
+core_version_requirement: ^8 || ^9 || ^10 || ^11
+package: Development
