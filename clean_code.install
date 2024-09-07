@@ -1,0 +1,41 @@
+<?php
+
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\State\StateInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\clean_code\Service\PackageManager;
+
+/**
+ * Implements hook_uninstall().
+ */
+function clean_code_uninstall() {
+  // Dependency injection for the services.
+  $state = \Drupal::service('state');
+  $config_factory = \Drupal::service('config.factory');
+  $logger_factory = \Drupal::service('logger.factory');
+  $package_manager = \Drupal::service('clean_code.package_manager');
+
+  // Check if the removal of packages was requested.
+  $removalStatus = $state->get('clean_code.remove_packages');
+
+  if ($removalStatus) {
+    // Retrieve an editable configuration object for clean_code.settings.
+    $config = $config_factory->getEditable('clean_code.settings');
+    $selectedPackages = $config->get('selected_packages');
+
+    // Log the packages to be removed for debugging purposes.
+    $logger_factory->get('clean_code')->debug('<pre>@packages</pre>', ['@packages' => print_r($selectedPackages, TRUE)]);
+
+    // If there are packages to remove, proceed.
+    if (!empty($selectedPackages)) {
+      // Remove the selected packages using the package manager service.
+      $package_manager->removePackages($selectedPackages);
+
+      // Clear the 'selected_packages' configuration key and save the config.
+      $config->clear('selected_packages')->save();
+
+      // Log the successful uninstall and package removal.
+      $logger_factory->get('clean_code')->notice('Clean Code module uninstalled and packages removed.');
+    }
+  }
+}
