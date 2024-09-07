@@ -1,0 +1,6 @@
+services:
+  clean_code.drush_command:
+    class: Drupal\clean_code\Drush\Commands\CleanCodeCommands
+    arguments: ['@clean_code.package_manager', '@clean_code.grum_generator','@state']
+    tags:
+      - { name: drush.command }
