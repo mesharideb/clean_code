@@ -1,0 +1,36 @@
+{
+    "name": "drupal/clean_code",
+    "description": "Provides clean code standards and tools for Drupal development.",
+    "type": "drupal-module",
+    "homepage": "http://drupal.org/project/clean_code",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "mesharideb",
+            "homepage": "https://www.drupal.org/u/mesharideb"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "phpro/grumphp-shim": "^2.6",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpro/grumphp-shim": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/clean_code",
+        "source": "https://git.drupalcode.org/project/clean_code"
+    },
+    "extra": {
+        "grumphp": {
+            "config-default-path": "grumphp.yml",
+            "project-path": ".",
+            "disable-plugin": true
+        }
+    }
+}
