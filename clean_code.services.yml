@@ -2,8 +2,8 @@ services:
   clean_code.package_manager:
     class: Drupal\clean_code\Service\PackageManager
     arguments:
-      ['@logger.factory', '@file_system', '@module_handler', '@config.factory']
+      ['@logger.factory', '@file_system', '@module_handler', '@config.factory', '%app.root%']
 
   clean_code.grum_generator:
     class: Drupal\clean_code\Service\GrumGenerator
-    arguments: ['@file_system']
+    arguments: ['@file_system', '@module_handler', '@theme_handler']
