@@ -4,3 +4,9 @@ services:
     arguments: ['@clean_code.package_manager', '@clean_code.grum_generator','@state']
     tags:
       - { name: drush.command }
+
+  clean_code.grumphp_command:
+    class: Drupal\clean_code\Drush\Commands\GrumPhpCommands
+    arguments: ['@file_system', '@extension.path.resolver', '@logger.factory', '%app.root%', '@stream_wrapper_manager']
+    tags:
+      - { name: drush.command }
