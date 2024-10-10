@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\clean_code\Drush\Commands;
 
+use Drupal\Core\State\StateInterface;
 use Drupal\clean_code\Service\GrumGenerator;
 use Drupal\clean_code\Service\PackageManager;
-use Drupal\Core\State\StateInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * A Drush command file for managing GrumPHP configurations.
+ * Provides Drush commands for managing Clean Code configurations.
  */
 class CleanCodeCommands extends DrushCommands {
 
@@ -21,29 +21,29 @@ class CleanCodeCommands extends DrushCommands {
    *
    * @var \Drupal\clean_code\Service\PackageManager
    */
-  protected $packageManager;
+  protected PackageManager $packageManager;
 
   /**
    * The GrumGenerator service.
    *
    * @var \Drupal\clean_code\Service\GrumGenerator
    */
-  protected $grumGenerator;
+  protected GrumGenerator $grumGenerator;
 
   /**
    * The State service.
    *
    * @var \Drupal\Core\State\StateInterface
    */
-  protected $state;
+  protected StateInterface $state;
 
   /**
-   * Constructor to inject services.
+   * Constructs a new CleanCodeCommands object.
    *
    * @param \Drupal\clean_code\Service\PackageManager $packageManager
    *   The package manager service.
    * @param \Drupal\clean_code\Service\GrumGenerator $grumGenerator
-   *   The GrumPHP generator service.
+   *   The Clean Code generator service.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
    */
@@ -55,58 +55,81 @@ class CleanCodeCommands extends DrushCommands {
   }
 
   /**
-   * Generate GrumPHP configuration and install required packages.
+   * Generates Clean Code configuration and installs required packages.
    *
-   * @command grumphp:generate-install
-   * @aliases ggi
-   * @description Generate GrumPHP configuration and install required packages.
+   * @command clean_code:generate-install
+   * @aliases ccgi
+   * @description Generate Clean Code configuration and install required packages.
+   * @usage drush clean_code:generate-install
+   *   Generates the Clean Code configuration file and installs the required Composer packages.
+   *
+   * @throws \Exception
+   *   If there's an error during the generation or installation process.
    */
   public function generate(): void {
-    $root = $this->packageManager->getDrupalRootPath();
-    $this->packageManager->setIo(new SymfonyStyle($this->input(), $this->output()));
-    $tasks = $this->getTasksList();
-    $selectedTasks = $this->askUserForTasks($tasks);
-    $selectedKeys = $this->getSelectedTaskKeys($selectedTasks, $tasks);
+    try {
+      $root = $this->packageManager->getDrupalRootPath();
+      $this->packageManager->setIo(new SymfonyStyle($this->input(), $this->output()));
+      $tasks = $this->getTasksList();
+      $selectedTasks = $this->askUserForTasks($tasks);
+      $selectedKeys = $this->getSelectedTaskKeys($selectedTasks, $tasks);
 
-    // Remove Git-related tasks.
-    $filteredTasks = array_diff($selectedKeys, ['git_blacklist', 'git_branch_name', 'git_commit_message', 'yamllint']);
+      // Remove Git-related tasks.
+      $filteredTasks = array_diff($selectedKeys, ['git_blacklist', 'git_branch_name', 'git_commit_message', 'yamllint']);
 
-    $this->installPackages($filteredTasks);
+      $this->installPackages($filteredTasks);
 
-    $removePackages = $this->io()->confirm('Do you want the packages to be removed when the module is uninstalled?', FALSE);
+      $removePackages = $this->io()->confirm('Do you want the packages to be removed when the module is uninstalled?', FALSE);
 
-    // Store the user preference in the State API using DI.
-    $this->state->set('clean_code.remove_packages', $removePackages);
+      // Store the user preference in the State API.
+      $this->state->set('clean_code.remove_packages', $removePackages);
 
-    $this->grumGenerator->setIo(new SymfonyStyle($this->input(), $this->output()));
-    $this->grumGenerator->generateGrumFile($root, $selectedKeys);
+      $this->grumGenerator->setIo(new SymfonyStyle($this->input(), $this->output()));
+      $this->grumGenerator->generateGrumFile($root, $selectedKeys);
 
-    $this->output()->writeln('<info>GrumPHP configuration generated and packages installed successfully.</info>');
+      $this->output()->writeln('<info>Clean Code configuration generated and packages installed successfully.</info>');
+    }
+    catch (\Exception $e) {
+      $this->logger()->error('An error occurred during Clean Code configuration generation: ' . $e->getMessage());
+      throw $e;
+    }
   }
 
   /**
-   * Generate GrumPHP configuration without installing packages.
+   * Generates Clean Code configuration without installing packages.
    *
-   * @command grumphp:generate-no-install
-   * @aliases ggni
-   * @description Generate GrumPHP configuration without installing packages.
+   * @command clean_code:generate-no-install
+   * @aliases ccgni
+   * @description Generate Clean Code configuration without installing Composer packages.
+   * @usage drush clean_code:generate-no-install
+   *   Generates the Clean Code configuration file without installing the Composer
+   *   packages.
+   *
+   * @throws \Exception
+   *   If there's an error during the generation process.
    */
   public function generateNoInstall(): void {
-    $root = $this->packageManager->getDrupalRootPath();
-    $this->packageManager->setIo(new SymfonyStyle($this->input(), $this->output()));
+    try {
+      $root = $this->packageManager->getDrupalRootPath();
+      $this->packageManager->setIo(new SymfonyStyle($this->input(), $this->output()));
 
-    $tasks = $this->getTasksList();
-    $selectedTasks = $this->askUserForTasks($tasks);
-    $selectedKeys = $this->getSelectedTaskKeys($selectedTasks, $tasks);
+      $tasks = $this->getTasksList();
+      $selectedTasks = $this->askUserForTasks($tasks);
+      $selectedKeys = $this->getSelectedTaskKeys($selectedTasks, $tasks);
 
-    $this->grumGenerator->setIo(new SymfonyStyle($this->input(), $this->output()));
-    $this->grumGenerator->generateGrumFile($root, $selectedKeys);
+      $this->grumGenerator->setIo(new SymfonyStyle($this->input(), $this->output()));
+      $this->grumGenerator->generateGrumFile($root, $selectedKeys);
 
-    $this->output()->writeln('<info>GrumPHP configuration generated successfully.</info>');
+      $this->output()->writeln('<info>Clean Code configuration generated successfully.</info>');
+    }
+    catch (\Exception $e) {
+      $this->logger()->error('An error occurred during Clean Code configuration generation: ' . $e->getMessage());
+      throw $e;
+    }
   }
 
   /**
-   * Install selected Composer packages.
+   * Installs selected Composer packages.
    *
    * @param array $selectedKeys
    *   The selected task keys.
@@ -121,10 +144,10 @@ class CleanCodeCommands extends DrushCommands {
   }
 
   /**
-   * Retrieves the list of tasks.
+   * Retrieves the list of available tasks.
    *
-   * @return string[]
-   *   The list of tasks.
+   * @return array
+   *   An associative array of task keys and their descriptions.
    */
   private function getTasksList(): array {
     return [
@@ -144,13 +167,13 @@ class CleanCodeCommands extends DrushCommands {
   }
 
   /**
-   * Asks the user for tasks.
+   * Prompts the user to select tasks.
    *
    * @param array $tasks
-   *   The array of tasks.
+   *   The array of available tasks.
    *
-   * @return string[]
-   *   The array of tasks after user input.
+   * @return array
+   *   The array of selected tasks.
    */
   private function askUserForTasks(array $tasks): array {
     $question = new ChoiceQuestion(
@@ -163,14 +186,14 @@ class CleanCodeCommands extends DrushCommands {
   }
 
   /**
-   * Get the selected task keys.
+   * Gets the selected task keys.
    *
    * @param array $selectedTasks
    *   The selected tasks.
    * @param array $tasks
-   *   The array of tasks.
+   *   The array of all available tasks.
    *
-   * @return string[]
+   * @return array
    *   The array of selected task keys.
    */
   private function getSelectedTaskKeys(array $selectedTasks, array $tasks): array {
@@ -178,13 +201,13 @@ class CleanCodeCommands extends DrushCommands {
   }
 
   /**
-   * Get the Composer packages for the selected tasks.
+   * Gets the Composer packages for the selected tasks.
    *
    * @param array $tasks
    *   The array of selected tasks.
    *
    * @return array
-   *   The array of Composer packages.
+   *   The array of Composer packages to install.
    */
   private function getComposerPackages(array $tasks): array {
     $packages = [
@@ -193,12 +216,17 @@ class CleanCodeCommands extends DrushCommands {
       'phpmd' => 'phpmd/phpmd',
       'phpstan' => 'phpstan/phpstan',
       'phpunit' => 'phpunit/phpunit',
-      'twigcs' => 'friendsoftwig/twigcs',
+      'twigcs' => ['friendsoftwig/twigcs', 'vincentlanglet/twig-cs-fixer'],
       'jsonlint' => 'seld/jsonlint',
       'security-checker' => 'enlightn/security-checker',
     ];
 
-    return array_intersect_key($packages, array_flip($tasks));
+    $selectedPackages = array_intersect_key($packages, array_flip($tasks));
+
+    // Flatten the array to ensure all elements are strings.
+    return array_reduce($selectedPackages, function ($carry, $item) {
+      return is_array($item) ? array_merge($carry, $item) : array_merge($carry, [$item]);
+    }, []);
   }
 
 }
