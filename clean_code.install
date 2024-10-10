@@ -1,41 +1,49 @@
 <?php
 
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\State\StateInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\clean_code\Service\PackageManager;
+/**
+ * @file
+ * Contains the uninstall hook and helper functions for the Clean Code module.
+ */
+
+declare(strict_types=1);
 
 /**
  * Implements hook_uninstall().
  */
 function clean_code_uninstall() {
-  // Dependency injection for the services.
+  clean_code_remove_packages();
+}
+
+/**
+ * Helper function to remove selected packages on module uninstall.
+ */
+function clean_code_remove_packages() {
+  // Retrieve services only once.
   $state = \Drupal::service('state');
   $config_factory = \Drupal::service('config.factory');
-  $logger_factory = \Drupal::service('logger.factory');
+  $logger = \Drupal::service('logger.factory')->get('clean_code');
   $package_manager = \Drupal::service('clean_code.package_manager');
 
-  // Check if the removal of packages was requested.
-  $removalStatus = $state->get('clean_code.remove_packages');
-
-  if ($removalStatus) {
-    // Retrieve an editable configuration object for clean_code.settings.
+  // Check the removal status in the state service.
+  if ($state->get('clean_code.remove_packages')) {
+    // Get the selected packages from the config.
     $config = $config_factory->getEditable('clean_code.settings');
-    $selectedPackages = $config->get('selected_packages');
+    $selected_packages = $config->get('selected_packages');
 
-    // Log the packages to be removed for debugging purposes.
-    $logger_factory->get('clean_code')->debug('<pre>@packages</pre>', ['@packages' => print_r($selectedPackages, TRUE)]);
-
-    // If there are packages to remove, proceed.
-    if (!empty($selectedPackages)) {
-      // Remove the selected packages using the package manager service.
-      $package_manager->removePackages($selectedPackages);
-
-      // Clear the 'selected_packages' configuration key and save the config.
-      $config->clear('selected_packages')->save();
-
-      // Log the successful uninstall and package removal.
-      $logger_factory->get('clean_code')->notice('Clean Code module uninstalled and packages removed.');
+    if (!empty($selected_packages)) {
+      // Remove the packages using the PackageManager service.
+      try {
+        $package_manager->removePackages($selected_packages);
+        // Clear the selected packages from the config and save it.
+        $config->clear('selected_packages')->save();
+        // Log success message.
+        $logger->notice('Selected packages have been successfully removed during the Clean Code module uninstall.');
+      }
+      catch (\Exception $e) {
+        $logger->error('Failed to remove selected packages during Clean Code module uninstall: @message', [
+          '@message' => $e->getMessage(),
+        ]);
+      }
     }
   }
 }
