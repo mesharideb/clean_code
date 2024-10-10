@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Provides help and documentation for the Clean Code module.
+ */
+
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
