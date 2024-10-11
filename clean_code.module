@@ -13,19 +13,29 @@ use Drupal\Core\Routing\RouteMatchInterface;
 function clean_code_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.clean_code':
-      return '<p>' . t('The Clean Code module enforces clean, organized, and high-quality code by integrating automated code quality checks and package management tools into your development workflow.') . '</p>' .
-        '<h2>' . t('Features') . '</h2>' .
-        '<ul>' .
-        '<li>' . t('Automatically runs GrumPHP during Git operations to check for code quality issues.') . '</li>' .
-        '<li>' . t('Supports tools like PHP CodeSniffer, PHPStan, PHP Lint, YAML Lint, and more.') . '</li>' .
-        '<li>' . t('Provides Drush commands to generate and manage GrumPHP configuration and Composer package installations.') . '</li>' .
-        '</ul>' .
-        '<h2>' . t('Getting Started') . '</h2>' .
-        '<p>' . t('To begin using the Clean Code module, run the following Drush commands to set up GrumPHP for your project:') . '</p>' .
-        '<pre><code>drush ggi</code></pre>' .
-        '<p>' . t('This command will guide you through setting up GrumPHP and installing necessary Composer packages for code quality checks.') . '</p>' .
-        '<p>' . t('To generate a GrumPHP configuration file without installing Composer packages, use the following Drush command:') . '</p>' .
-        '<pre><code>drush ggni</code></pre>' .
-        '<p>' . t('For more information on using the Clean Code module, refer to the README file in the module directory.') . '</p>';
+      $output = '';
+
+      // About section.
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('<a href=":cleancode">Clean Code</a>integrates GrumPHP into Drupal project to enforce coding standards and perform code quality checks. It provides Drush commands to generate and manage GrumPHP configuration, ensuring your codebase stays clean and adheres to best practices.',
+          [
+            ':cleancode' => 'http://drupal.org/project/clean_code',
+          ]
+        ) . '</p>';
+
+      // Uses section.
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<p>' . t('The Clean Code module helps keep your codebase clean by running automated checks. You can configure which coding standards to enforce and define task-specific options, ensuring your code follows best practices.') . '</p>';
+
+      // Drush Commands section.
+      $output .= '<h3>' . t('Drush Commands') . '</h3>';
+      $output .= '<p>' . t('You can manage the GrumPHP setup using the following Drush commands:') . '</p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<code>drush clean_code:check</code>: Run GrumPHP checks on your code.') . '</li>';
+      $output .= '<li>' . t('<code>drush clean_code:generate-install</code>: Generate and install the necessary GrumPHP configuration files.') . '</li>';
+      $output .= '<li>' . t('<code>drush clean_code:generate-no-install</code>: Generate GrumPHP configuration without installing the necessary packages.') . '</li>';
+      $output .= '</ul>';
+
+      return $output;
   }
 }
