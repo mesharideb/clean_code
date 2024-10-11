@@ -717,7 +717,8 @@ class GrumGenerator {
    *   The machine name of the extension.
    *
    * @return string
-   *   The relative path starting from 'web/' or the absolute path if 'web/' is not found.
+   *   The relative path starting from 'web/' or the absolute path if 'web/'
+   *   is not found.
    *   Returns '~' if the extension type is invalid.
    */
   private function getExtensionBasePath(string $type, string $machine_name): string {

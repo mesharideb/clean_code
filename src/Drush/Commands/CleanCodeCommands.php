@@ -61,7 +61,8 @@ class CleanCodeCommands extends DrushCommands {
    * @aliases ccgi
    * @description Generate Clean Code configuration and install required packages.
    * @usage drush clean_code:generate-install
-   *   Generates the Clean Code configuration file and installs the required Composer packages.
+   *   Generates the Clean Code configuration file and installs the required
+   *   Composer packages.
    *
    * @throws \Exception
    *   If there's an error during the generation or installation process.
@@ -102,8 +103,8 @@ class CleanCodeCommands extends DrushCommands {
    * @aliases ccgni
    * @description Generate Clean Code configuration without installing Composer packages.
    * @usage drush clean_code:generate-no-install
-   *   Generates the Clean Code configuration file without installing the Composer
-   *   packages.
+   *   Generates the Clean Code configuration file without installing the
+   *   Composer packages.
    *
    * @throws \Exception
    *   If there's an error during the generation process.

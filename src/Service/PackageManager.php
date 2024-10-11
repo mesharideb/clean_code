@@ -188,7 +188,7 @@ class PackageManager {
     }
 
     $actionTitle = ucfirst($action) . 'ing packages...';
-    $this->logMessage($this->t($actionTitle)->render(), 'info');
+    $this->logMessage($this->t('@actionTitle', ['@actionTitle' => $actionTitle])->render(), 'info');
 
     if ($action === self::ACTION_REQUIRE) {
       $packages = $this->filterInstalledPackages($packages);
